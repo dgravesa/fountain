@@ -11,16 +11,16 @@ import (
 )
 
 func main() {
-	var user string
+	var userID string
 	var amt float64
 
-	flag.StringVar(&user, "user", "", "ID of user")
+	flag.StringVar(&userID, "user", "", "ID of user")
 	flag.Float64Var(&amt, "amount", 0.0, "amount of water")
 	flag.Parse()
 
 	hasErrors := false
 
-	if user == "" {
+	if userID == "" {
 		log.Println("no user specified")
 		hasErrors = true
 	}
@@ -42,10 +42,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// insert new item
-	k := datastore.NameKey("Its Me", user, nil)
+	// create log
 	wl := fountain.WlNow(amt)
-	if _, err := client.Put(ctx, k, &wl); err != nil {
+
+	// insert new item
+	userKey := datastore.NameKey("Users", userID, nil)
+	wlKey := datastore.IDKey("WaterLogs", wl.Unix(), userKey)
+	if _, err := client.Put(ctx, wlKey, &wl); err != nil {
 		log.Fatalln(err)
 	}
 

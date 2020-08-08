@@ -6,19 +6,22 @@ import (
 	"fmt"
 	"log"
 
-	"cloud.google.com/go/datastore"
+	"google.golang.org/api/iterator"
+
 	"github.com/dgravesa/fountain/pkg/fountain"
+
+	"cloud.google.com/go/datastore"
 )
 
 func main() {
-	var user string
+	var userID string
 
-	flag.StringVar(&user, "user", "", "ID of user")
+	flag.StringVar(&userID, "user", "", "ID of user")
 	flag.Parse()
 
 	hasErrors := false
 
-	if user == "" {
+	if userID == "" {
 		log.Println("no user specified")
 		hasErrors = true
 	}
@@ -34,11 +37,22 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	k := datastore.NameKey("Its Me", user, nil)
-	var wl fountain.WaterLog
-	if err = client.Get(ctx, k, &wl); err != nil {
-		log.Fatalln(err)
-	}
+	userKey := datastore.NameKey("Users", userID, nil)
+	q := datastore.NewQuery("WaterLogs").Ancestor(userKey)
+	qResult := client.Run(ctx, q)
 
-	fmt.Println(wl.Amount, "oz @", wl.Time)
+	for {
+		var wl fountain.WaterLog
+
+		// retrieve next log
+		if _, err = qResult.Next(&wl); err != nil {
+			if err == iterator.Done {
+				break
+			} else {
+				log.Fatalln(err)
+			}
+		}
+
+		fmt.Println(wl.Amount, "oz @", wl.Time)
+	}
 }
