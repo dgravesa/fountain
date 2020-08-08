@@ -1,4 +1,4 @@
-package waterlog
+package fountain
 
 import "time"
 

@@ -7,14 +7,14 @@ import (
 	"log"
 
 	"cloud.google.com/go/datastore"
-	"github.com/dgravesa/fountain/pkg/waterlog"
+	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
 func main() {
 	var user string
 	var amt float64
 
-	flag.StringVar(&user, "user", "", "name of user")
+	flag.StringVar(&user, "user", "", "ID of user")
 	flag.Float64Var(&amt, "amount", 0.0, "amount of water")
 	flag.Parse()
 
@@ -44,7 +44,7 @@ func main() {
 
 	// insert new item
 	k := datastore.NameKey("Its Me", user, nil)
-	wl := waterlog.WlNow(amt)
+	wl := fountain.WlNow(amt)
 	if _, err := client.Put(ctx, k, &wl); err != nil {
 		log.Fatalln(err)
 	}

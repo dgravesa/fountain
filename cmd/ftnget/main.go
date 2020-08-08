@@ -7,13 +7,13 @@ import (
 	"log"
 
 	"cloud.google.com/go/datastore"
-	"github.com/dgravesa/fountain/pkg/waterlog"
+	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
 func main() {
 	var user string
 
-	flag.StringVar(&user, "user", "", "name of user")
+	flag.StringVar(&user, "user", "", "ID of user")
 	flag.Parse()
 
 	hasErrors := false
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	k := datastore.NameKey("Its Me", user, nil)
-	var wl waterlog.WaterLog
+	var wl fountain.WaterLog
 	if err = client.Get(ctx, k, &wl); err != nil {
 		log.Fatalln(err)
 	}
