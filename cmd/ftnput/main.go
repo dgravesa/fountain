@@ -5,15 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/dgravesa/fountain/pkg/waterlog"
 )
-
-type waterlog struct {
-	Amount float64
-	time.Time
-}
 
 func main() {
 	var user string
@@ -49,10 +44,10 @@ func main() {
 
 	// insert new item
 	k := datastore.NameKey("Its Me", user, nil)
-	wl := waterlog{Amount: amt, Time: time.Now()}
+	wl := waterlog.WlNow(amt)
 	if _, err := client.Put(ctx, k, &wl); err != nil {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("successfully made it this far")
+	fmt.Println("success")
 }
