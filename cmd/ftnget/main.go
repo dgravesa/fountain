@@ -1,16 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 
-	"google.golang.org/api/iterator"
-
-	"github.com/dgravesa/fountain/pkg/fountain"
-
-	"cloud.google.com/go/datastore"
+	"github.com/dgravesa/fountain/pkg/data/gcp"
 )
 
 func main() {
@@ -30,29 +25,21 @@ func main() {
 		log.Fatalln("error occurred")
 	}
 
-	ctx := context.Background()
+	// retrieve user logs
+	fountain := gcp.DatastoreClient{}
+	waterlogs, err := fountain.UserWls(userID)
 
-	client, err := datastore.NewClient(ctx, "water-you-logging-for")
 	if err != nil {
 		log.Fatalln(err)
-	}
+	} else {
+		total := 0.0
 
-	userKey := datastore.NameKey("Users", userID, nil)
-	q := datastore.NewQuery("WaterLogs").Ancestor(userKey)
-	qResult := client.Run(ctx, q)
-
-	for {
-		var wl fountain.WaterLog
-
-		// retrieve next log
-		if _, err = qResult.Next(&wl); err != nil {
-			if err == iterator.Done {
-				break
-			} else {
-				log.Fatalln(err)
-			}
+		// print all user logs
+		for _, wl := range waterlogs {
+			fmt.Println(wl)
+			total += wl.Amount
 		}
 
-		fmt.Println(wl.Amount, "oz @", wl.Time)
+		fmt.Println("Total amount:", total, "oz")
 	}
 }

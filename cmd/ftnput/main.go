@@ -1,12 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 
-	"cloud.google.com/go/datastore"
+	"github.com/dgravesa/fountain/pkg/data/gcp"
 	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
@@ -34,23 +33,14 @@ func main() {
 		log.Fatalln("error occurred")
 	}
 
-	ctx := context.Background()
+	// insert new user log
+	wl := fountain.WlNow(amt)
+	fountain := gcp.DatastoreClient{}
+	err := fountain.WriteWl(userID, &wl)
 
-	// initialize client
-	client, err := datastore.NewClient(ctx, "water-you-logging-for")
 	if err != nil {
 		log.Fatalln(err)
+	} else {
+		fmt.Println(wl)
 	}
-
-	// create log
-	wl := fountain.WlNow(amt)
-
-	// insert new item
-	userKey := datastore.NameKey("Users", userID, nil)
-	wlKey := datastore.IDKey("WaterLogs", wl.Unix(), userKey)
-	if _, err := client.Put(ctx, wlKey, &wl); err != nil {
-		log.Fatalln(err)
-	}
-
-	fmt.Println("success")
 }
