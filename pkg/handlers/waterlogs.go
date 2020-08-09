@@ -28,53 +28,53 @@ func (waterlogs *WaterLogsHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	case http.MethodPost:
 		waterlogs.post(w, r)
 	default:
-		errors := []string{"method not allowed"}
-		writeResponse(w, http.StatusMethodNotAllowed, errors)
+		writeResponse(w, http.StatusMethodNotAllowed, "method not allowed")
 	}
 }
 
 func (waterlogs *WaterLogsHandler) get(w http.ResponseWriter, r *http.Request) {
-	// TODO: implement
-	errors := []string{"not yet implemented"}
-	writeResponse(w, http.StatusNotImplemented, errors)
+	userID := r.FormValue("user")
+
+	// validate user field
+	if userID == "" {
+		writeResponse(w, http.StatusBadRequest, "no user specified")
+		return
+	}
+
+	// get user logs
+	if userlogs, err := waterlogs.reservoir.UserWls(userID); err != nil {
+		log.Println("internal error on user waterlogs get:", err)
+		writeResponse(w, http.StatusInternalServerError, "internal server error")
+	} else {
+		writeResponse(w, http.StatusOK, userlogs)
+	}
 }
 
 func (waterlogs *WaterLogsHandler) post(w http.ResponseWriter, r *http.Request) {
-	var errors []string
-	statusCode := http.StatusOK
-
 	userID := r.FormValue("user")
 	amountStr := r.FormValue("amount")
 
 	// validate user field
 	if userID == "" {
-		errors = append(errors, "no user specified")
-		statusCode = http.StatusBadRequest
+		writeResponse(w, http.StatusBadRequest, "no user specified")
+		return
 	}
 
-	if len(errors) == 0 {
-		amount, err := strconv.ParseFloat(amountStr, 64)
-
-		// validate amount field
-		if err != nil {
-			errors = append(errors, "unable to parse amount")
-			statusCode = http.StatusBadRequest
-		} else if amount <= 0.0 {
-			errors = append(errors, "amount must be greater than 0.0")
-			statusCode = http.StatusBadRequest
-		} else {
-			// insert new log
-			wl := fountain.WlNow(amount)
-			if err := waterlogs.reservoir.WriteWl(userID, &wl); err != nil {
-				log.Println("internal error on user waterlog post:", err)
-				statusCode = http.StatusInternalServerError
-			}
+	// validate amount field
+	if amount, err := strconv.ParseFloat(amountStr, 64); err != nil {
+		writeResponse(w, http.StatusBadRequest, "unable to parse amount")
+	} else if amount <= 0.0 {
+		writeResponse(w, http.StatusBadRequest, "amount must be greater than 0.0")
+	} else {
+		// insert new log
+		wl := fountain.WlNow(amount)
+		if err := waterlogs.reservoir.WriteWl(userID, &wl); err != nil {
+			log.Println("internal error on user waterlog post:", err)
+			writeResponse(w, http.StatusInternalServerError, "internal server error")
+			return
 		}
-	}
 
-	if statusCode != http.StatusOK {
-		log.Println("errors on user waterlog post:", errors)
+		// success response
+		writeResponse(w, http.StatusOK, wl)
 	}
-
-	writeResponse(w, statusCode, errors)
 }

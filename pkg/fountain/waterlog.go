@@ -1,6 +1,7 @@
 package fountain
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -18,4 +19,14 @@ func WlNow(amount float64) WaterLog {
 
 func (wl WaterLog) String() string {
 	return fmt.Sprint(wl.Amount, " oz @ ", wl.Time)
+}
+
+// MarshalJSON writes a WaterLog as json bytes
+func (wl WaterLog) MarshalJSON() ([]byte, error) {
+	type waterLog struct {
+		T time.Time `json:"time"`
+		A float64   `json:"amount"`
+	}
+
+	return json.Marshal(waterLog{T: wl.Time, A: wl.Amount})
 }

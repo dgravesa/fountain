@@ -9,11 +9,7 @@ type errorResponse struct {
 	errors []error
 }
 
-func writeResponse(w http.ResponseWriter, statusCode int, errors []string) {
+func writeResponse(w http.ResponseWriter, statusCode int, body interface{}) {
 	w.WriteHeader(statusCode)
-
-	if len(errors) > 0 {
-		jw := json.NewEncoder(w)
-		jw.Encode(errors)
-	}
+	json.NewEncoder(w).Encode(body)
 }
