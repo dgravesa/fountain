@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dgravesa/fountain/pkg/data/gcp"
+	"github.com/dgravesa/fountain/pkg/data"
+
 	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
@@ -35,8 +36,8 @@ func main() {
 
 	// insert new user log
 	wl := fountain.WlNow(amt)
-	client := gcp.DatastoreClient{}
-	err := client.WriteWl(userID, &wl)
+	reservoir := data.DefaultReservoir()
+	err := reservoir.WriteWl(userID, &wl)
 
 	if err != nil {
 		log.Fatalln(err)

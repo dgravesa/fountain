@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dgravesa/fountain/pkg/data/gcp"
+	"github.com/dgravesa/fountain/pkg/data"
 	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
@@ -62,8 +62,8 @@ func main() {
 	}
 
 	// try pulling user info
-	client := gcp.DatastoreClient{}
-	user, err := client.User(userID)
+	userStore := data.DefaultUserStore()
+	user, err := userStore.User(userID)
 
 	// TODO: handle client error other than not found
 	if user == nil {
@@ -74,7 +74,7 @@ func main() {
 	// update user via interactive prompts
 	interactiveBuildUser(user)
 
-	err = client.PutUser(user)
+	err = userStore.PutUser(user)
 	if err != nil {
 		log.Fatalln(err)
 	} else {

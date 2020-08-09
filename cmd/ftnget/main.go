@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dgravesa/fountain/pkg/data/gcp"
+	"github.com/dgravesa/fountain/pkg/data"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func main() {
 	}
 
 	// retrieve user logs
-	client := gcp.DatastoreClient{}
-	waterlogs, err := client.UserWls(userID)
+	reservoir := data.DefaultReservoir()
+	waterlogs, err := reservoir.UserWls(userID)
 
 	if err != nil {
 		log.Fatalln(err)
