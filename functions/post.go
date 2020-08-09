@@ -29,8 +29,6 @@ func FountainPost(w http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusBadRequest
 	}
 
-	var wl fountain.WaterLog
-
 	if len(errors) == 0 {
 		amount, err := strconv.ParseFloat(amountStr, 64)
 
@@ -43,7 +41,7 @@ func FountainPost(w http.ResponseWriter, r *http.Request) {
 			statusCode = http.StatusBadRequest
 		} else {
 			// insert new log
-			wl = fountain.WlNow(amount)
+			wl := fountain.WlNow(amount)
 			if err := data.DefaultReservoir().WriteWl(userID, &wl); err != nil {
 				log.Println("internal error on user waterlog post:", err)
 				statusCode = http.StatusInternalServerError
