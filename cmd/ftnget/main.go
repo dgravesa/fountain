@@ -26,8 +26,8 @@ func main() {
 	}
 
 	// retrieve user logs
-	fountain := gcp.DatastoreClient{}
-	waterlogs, err := fountain.UserWls(userID)
+	client := gcp.DatastoreClient{}
+	waterlogs, err := client.UserWls(userID)
 
 	if err != nil {
 		log.Fatalln(err)

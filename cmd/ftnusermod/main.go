@@ -2,14 +2,13 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"cloud.google.com/go/datastore"
+	"github.com/dgravesa/fountain/pkg/data/gcp"
 	"github.com/dgravesa/fountain/pkg/fountain"
 )
 
@@ -62,25 +61,23 @@ func main() {
 		log.Fatalln("user not specified")
 	}
 
-	// initialize datastore client
-	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "water-you-logging-for")
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// try pulling user info
+	client := gcp.DatastoreClient{}
+	user, err := client.User(userID)
 
-	// try pulling user info from datastore
-	user := fountain.User{ID: userID}
-	k := datastore.NameKey("Users", userID, nil)
-	client.Get(ctx, k, &user)
+	// TODO: handle client error other than not found
+	if user == nil {
+		user = new(fountain.User)
+		user.ID = userID
+	}
 
 	// update user via interactive prompts
-	interactiveBuildUser(&user)
+	interactiveBuildUser(user)
 
-	// insert updated user into datastore
-	if _, err = client.Put(ctx, k, &user); err != nil {
+	err = client.PutUser(user)
+	if err != nil {
 		log.Fatalln(err)
+	} else {
+		fmt.Println("user saved successfully")
 	}
-
-	fmt.Println("user saved successfully")
 }

@@ -35,8 +35,8 @@ func main() {
 
 	// insert new user log
 	wl := fountain.WlNow(amt)
-	fountain := gcp.DatastoreClient{}
-	err := fountain.WriteWl(userID, &wl)
+	client := gcp.DatastoreClient{}
+	err := client.WriteWl(userID, &wl)
 
 	if err != nil {
 		log.Fatalln(err)
