@@ -6,7 +6,7 @@ deploy:
 	gcloud functions deploy waterlogs \
 		--region us-east1 \
 		--runtime go113 \
-		--entry-point FountainPost \
+		--entry-point ServeWaterLogs \
 		--trigger-http \
 		--allow-unauthenticated \
 		--timeout 10 \
