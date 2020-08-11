@@ -4,21 +4,30 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/dgravesa/fountain/pkg/data"
-	"github.com/dgravesa/fountain/pkg/handlers"
+	"github.com/dgravesa/fountain/pkg/resources"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	port := flag.Uint("port", 8080, "port to host server")
+	// command line arguments
+	var port uint
+	flag.UintVar(&port, "port", 8080, "host port number")
+	flag.Parse()
 
-	reservoir := data.DefaultReservoir()
-	waterlogs := handlers.NewWaterLogsHandler(reservoir)
-	http.Handle("/waterlogs", waterlogs)
+	// initialize users resource
+	userStore := data.DefaultUserStore()
+	usersResource := resources.NewUsersResource(userStore)
 
-	portStr := fmt.Sprintf(":%d", *port)
-	if err := http.ListenAndServe(portStr, nil); err != nil {
+	// initialize routes
+	r := gin.Default()
+	r.GET("/users/:id", usersResource.GetUser)
+	r.POST("/users", usersResource.PostUser)
+
+	// listen and serve
+	portStr := fmt.Sprintf(":%d", port)
+	if err := r.Run(portStr); err != nil {
 		log.Fatalln(err)
 	}
 }
