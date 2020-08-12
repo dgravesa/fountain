@@ -25,7 +25,7 @@ func NewWaterLogsResource(r data.Reservoir) *WaterLogsResource {
 
 // GetWls gets waterlogs for a user
 func (wlr *WaterLogsResource) GetWls(c *gin.Context) {
-	userID := c.Param("id")
+	userID := c.Param("user")
 
 	// retrieve logs for the user from the reservoir
 	userlogs, err := wlr.reservoir.UserWls(userID)
@@ -43,7 +43,7 @@ type newWl struct {
 
 // PostWl posts a new waterlog for a user
 func (wlr *WaterLogsResource) PostWl(c *gin.Context) {
-	userID := c.Param("id")
+	userID := c.Param("user")
 
 	var nwl newWl
 	if err := c.Bind(&nwl); err != nil {

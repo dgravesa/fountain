@@ -16,19 +16,18 @@ func main() {
 	flag.UintVar(&port, "port", 8080, "host port number")
 	flag.Parse()
 
-	// initialize users resource
+	// initialize resources
 	userStore := data.DefaultUserStore()
 	usersResource := resources.NewUsersResource(userStore)
 	reservoir := data.DefaultReservoir()
 	waterlogsResource := resources.NewWaterLogsResource(reservoir)
 
 	// initialize routes
-	// TODO: middleware for user param verification
 	r := gin.Default()
-	r.GET("/users/:id", usersResource.GetUser)
+	r.GET("/users/:user", usersResource.GetUser)
 	r.POST("/users", usersResource.PostUser)
-	r.GET("/users/:id/waterlogs", waterlogsResource.GetWls)
-	r.POST("/users/:id/waterlogs", waterlogsResource.PostWl)
+	r.GET("/users/:user/waterlogs", usersResource.UserMustExist, waterlogsResource.GetWls)
+	r.POST("/users/:user/waterlogs", usersResource.UserMustExist, waterlogsResource.PostWl)
 
 	// listen and serve
 	portStr := fmt.Sprintf(":%d", port)

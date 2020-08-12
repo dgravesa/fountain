@@ -32,6 +32,9 @@ func (DatastoreClient) User(userID string) (*fountain.User, error) {
 	user := new(fountain.User)
 	k := userKey(userID)
 	if err = cl.Get(ctx, k, user); err != nil {
+		if err == datastore.ErrNoSuchEntity {
+			return nil, nil
+		}
 		return nil, err
 	}
 

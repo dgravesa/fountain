@@ -24,12 +24,32 @@ func NewUsersResource(userStore data.UserStore) *UsersResource {
 
 // GetUser retrieves a user by ID
 func (r *UsersResource) GetUser(c *gin.Context) {
-	id := c.Param("id")
+	userID := c.Param("user")
 
-	if user, err := r.userStore.User(id); err == nil {
-		c.JSON(http.StatusOK, user)
+	if user, err := r.userStore.User(userID); err == nil {
+		if user == nil {
+			c.Status(http.StatusNotFound)
+		} else {
+			c.JSON(http.StatusOK, user)
+		}
 	} else {
-		c.AbortWithError(http.StatusNotFound, err)
+		c.Error(err)
+		c.Status(http.StatusInternalServerError)
+	}
+}
+
+// UserMustExist is middleware that validates the existence of a user
+func (r *UsersResource) UserMustExist(c *gin.Context) {
+	userID := c.Param("user")
+
+	user, err := r.userStore.User(userID)
+	if user != nil {
+		c.Next()
+	} else if err == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 }
 
@@ -50,7 +70,7 @@ func (r *UsersResource) PostUser(c *gin.Context) {
 	}
 
 	// verify a user with ID does not already exist
-	// TODO: this should go in middleware
+	// TODO: try to put this in middleware
 	if existing, _ := r.userStore.User(nu.ID); existing != nil {
 		c.Status(http.StatusConflict)
 		return
