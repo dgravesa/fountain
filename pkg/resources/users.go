@@ -50,6 +50,7 @@ func (r *UsersResource) PostUser(c *gin.Context) {
 	}
 
 	// verify a user with ID does not already exist
+	// TODO: this should go in middleware
 	if existing, _ := r.userStore.User(nu.ID); existing != nil {
 		c.Status(http.StatusConflict)
 		return

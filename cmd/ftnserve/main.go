@@ -19,11 +19,16 @@ func main() {
 	// initialize users resource
 	userStore := data.DefaultUserStore()
 	usersResource := resources.NewUsersResource(userStore)
+	reservoir := data.DefaultReservoir()
+	waterlogsResource := resources.NewWaterLogsResource(reservoir)
 
 	// initialize routes
+	// TODO: middleware for user param verification
 	r := gin.Default()
 	r.GET("/users/:id", usersResource.GetUser)
 	r.POST("/users", usersResource.PostUser)
+	r.GET("/users/:id/waterlogs", waterlogsResource.GetWls)
+	r.POST("/users/:id/waterlogs", waterlogsResource.PostWl)
 
 	// listen and serve
 	portStr := fmt.Sprintf(":%d", port)
