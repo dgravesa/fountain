@@ -51,9 +51,12 @@ func (c *Client) User(userID string) (*fountain.User, error) {
 
 	// get bytes from redis
 	userStr, err := rdb.Get(uKey(userID)).Result()
-	// TODO: differentiate between connection error and user not found
-	if err != nil {
+	if err == redis.Nil {
+		// key not found
 		return nil, nil
+	} else if err != nil {
+		// other error
+		return nil, err
 	}
 
 	// unmarshal into user struct
