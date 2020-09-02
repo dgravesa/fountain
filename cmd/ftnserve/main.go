@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/dgravesa/fountain/pkg/data"
+	"github.com/dgravesa/fountain/pkg/data/gcp"
+	"github.com/dgravesa/fountain/pkg/data/redis"
 	"github.com/dgravesa/fountain/pkg/resources"
 	"github.com/gin-gonic/gin"
 )
@@ -13,11 +15,15 @@ import (
 func main() {
 	// command line arguments
 	var port uint
-	flag.UintVar(&port, "port", 8080, "host port number")
+	flag.UintVar(&port, "Port", 8080, "host port number")
+	var userStoreType string
+	flag.StringVar(&userStoreType, "UserStore", "", "user store backend [datastore, redis]")
+	var userStoreAddr string
+	flag.StringVar(&userStoreAddr, "UserStoreAddr", "", "address of user store")
 	flag.Parse()
 
 	// initialize resources
-	userStore := data.DefaultUserStore()
+	userStore := initializeUserStore(userStoreType, userStoreAddr)
 	usersResource := resources.NewUsersResource(userStore)
 	reservoir := data.DefaultReservoir()
 	waterlogsResource := resources.NewWaterLogsResource(reservoir)
@@ -34,4 +40,22 @@ func main() {
 	if err := r.Run(portStr); err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func initializeUserStore(storeType, addr string) data.UserStore {
+	if storeType == "" {
+		// use default
+		return data.DefaultUserStore()
+	} else if storeType == "datastore" {
+		return gcp.DatastoreClient{}
+	} else if storeType == "redis" {
+		store, err := redis.NewFountainClient(addr)
+		if err != nil {
+			log.Fatalln("error on initializing redis client:", err)
+		}
+		return store
+	}
+
+	log.Fatalln("invalid user store type specified:", storeType)
+	return nil
 }
