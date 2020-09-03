@@ -8,14 +8,14 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// Client is a Redis-based client
-type Client struct {
+// UserClient is a client to a Redis-based user store
+type UserClient struct {
 	address string
 }
 
-// NewFountainClient returns a new Redis-based client
-func NewFountainClient(addr string) (*Client, error) {
-	client := Client{address: addr}
+// NewUserClient returns a new Redis-based client
+func NewUserClient(addr string) (*UserClient, error) {
+	client := UserClient{address: addr}
 
 	// test redis connection with ping
 	rdb := redisClient(&client)
@@ -30,7 +30,7 @@ func uKey(uid string) string {
 	return fmt.Sprintf("users/%s", uid)
 }
 
-func redisClient(c *Client) *redis.Client {
+func redisClient(c *UserClient) *redis.Client {
 	return redis.NewClient(&redis.Options{
 		Addr:     c.address,
 		Password: "",
@@ -39,14 +39,14 @@ func redisClient(c *Client) *redis.Client {
 }
 
 // PutUser adds a new user to the store
-func (c *Client) PutUser(user *fountain.User) error {
+func (c *UserClient) PutUser(user *fountain.User) error {
 	rdb := redisClient(c)
 	userBytes, _ := json.Marshal(user)
 	return rdb.Set(uKey(user.ID), string(userBytes), 0).Err()
 }
 
 // User retrieves a user from the store
-func (c *Client) User(userID string) (*fountain.User, error) {
+func (c *UserClient) User(userID string) (*fountain.User, error) {
 	rdb := redisClient(c)
 
 	// get bytes from redis

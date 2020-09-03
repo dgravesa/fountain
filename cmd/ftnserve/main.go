@@ -49,7 +49,7 @@ func initializeUserStore(storeType, addr string) data.UserStore {
 	} else if storeType == "datastore" {
 		return gcp.DatastoreClient{}
 	} else if storeType == "redis" {
-		store, err := redis.NewFountainClient(addr)
+		store, err := redis.NewUserClient(addr)
 		if err != nil {
 			log.Fatalln("error on initializing redis client:", err)
 		}
