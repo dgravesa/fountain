@@ -21,12 +21,25 @@ func (wl WaterLog) String() string {
 	return fmt.Sprint(wl.Amount, " oz @ ", wl.Time)
 }
 
+type waterLog struct {
+	T time.Time `json:"time"`
+	A float64   `json:"amount"`
+}
+
 // MarshalJSON writes a WaterLog as json bytes
 func (wl WaterLog) MarshalJSON() ([]byte, error) {
-	type waterLog struct {
-		T time.Time `json:"time"`
-		A float64   `json:"amount"`
+	return json.Marshal(waterLog{T: wl.Time, A: wl.Amount})
+}
+
+// UnmarshalJSON reads a WaterLog as json bytes
+func (wl *WaterLog) UnmarshalJSON(bytes []byte) error {
+	var wlJSON waterLog
+
+	if err := json.Unmarshal(bytes, &wlJSON); err != nil {
+		return err
 	}
 
-	return json.Marshal(waterLog{T: wl.Time, A: wl.Amount})
+	wl.Time = wlJSON.T
+	wl.Amount = wlJSON.A
+	return nil
 }

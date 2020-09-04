@@ -10,32 +10,19 @@ import (
 
 // UserStore is a client to a Redis-based user store
 type UserStore struct {
-	address string
+	clientBase
 }
 
 // NewUserStore returns a new Redis-based client
 func NewUserStore(addr string) (*UserStore, error) {
-	client := UserStore{address: addr}
-
-	// test redis connection with ping
-	rdb := redisClient(&client)
-	if err := rdb.Ping().Err(); err != nil {
-		return nil, err
-	}
-
-	return &client, nil
+	var err error
+	userStore := new(UserStore)
+	userStore.clientBase, err = makeClientBase(addr)
+	return userStore, err
 }
 
 func uKey(uid string) string {
 	return fmt.Sprintf("users/%s", uid)
-}
-
-func redisClient(c *UserStore) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:     c.address,
-		Password: "",
-		DB:       0,
-	})
 }
 
 // PutUser adds a new user to the store
