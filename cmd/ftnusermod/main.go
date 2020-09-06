@@ -61,11 +61,19 @@ func main() {
 		log.Fatalln("user not specified")
 	}
 
-	// try pulling user info
-	userStore := data.DefaultUserStore()
-	user, err := userStore.User(userID)
+	mustNotErr := func(err error) {
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
 
-	// TODO: handle client error other than not found
+	// try pulling user info
+	userStore, err := data.DefaultUserStore()
+	mustNotErr(err)
+	user, err := userStore.User(userID)
+	mustNotErr(err)
+
+	// create new user with ID
 	if user == nil {
 		user = new(fountain.User)
 		user.ID = userID
@@ -75,9 +83,6 @@ func main() {
 	interactiveBuildUser(user)
 
 	err = userStore.PutUser(user)
-	if err != nil {
-		log.Fatalln(err)
-	} else {
-		fmt.Println("user saved successfully")
-	}
+	mustNotErr(err)
+	fmt.Println("user saved successfully")
 }

@@ -9,10 +9,19 @@ import (
 )
 
 // DatastoreClient implements fountain data interfaces for GCP datastore
-type DatastoreClient struct{}
+type DatastoreClient struct {
+	projectName string
+}
 
-func datastoreClient(ctx context.Context) (*datastore.Client, error) {
-	return datastore.NewClient(ctx, "water-you-logging-for")
+// NewDatastoreClient creates a new GCP datastore client instance
+func NewDatastoreClient(projectName string) *DatastoreClient {
+	client := new(DatastoreClient)
+	client.projectName = projectName
+	return client
+}
+
+func (c DatastoreClient) get(ctx context.Context) (*datastore.Client, error) {
+	return datastore.NewClient(ctx, c.projectName)
 }
 
 func userKey(userID string) *datastore.Key {
@@ -20,10 +29,10 @@ func userKey(userID string) *datastore.Key {
 }
 
 // User retrieves a user from datastore
-func (DatastoreClient) User(userID string) (*fountain.User, error) {
+func (c DatastoreClient) User(userID string) (*fountain.User, error) {
 	ctx := context.Background()
 
-	cl, err := datastoreClient(ctx)
+	cl, err := c.get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,10 +51,10 @@ func (DatastoreClient) User(userID string) (*fountain.User, error) {
 }
 
 // PutUser creates a new user or updates an existing user with the ID
-func (DatastoreClient) PutUser(user *fountain.User) error {
+func (c DatastoreClient) PutUser(user *fountain.User) error {
 	ctx := context.Background()
 
-	cl, err := datastoreClient(ctx)
+	cl, err := c.get(ctx)
 	if err != nil {
 		return err
 	}
@@ -57,10 +66,10 @@ func (DatastoreClient) PutUser(user *fountain.User) error {
 }
 
 // WriteWl writes a new user waterlog to datastore
-func (DatastoreClient) WriteWl(userID string, wl *fountain.WaterLog) error {
+func (c DatastoreClient) WriteWl(userID string, wl *fountain.WaterLog) error {
 	ctx := context.Background()
 
-	cl, err := datastoreClient(ctx)
+	cl, err := c.get(ctx)
 	if err != nil {
 		return err
 	}
@@ -76,11 +85,11 @@ func (DatastoreClient) WriteWl(userID string, wl *fountain.WaterLog) error {
 }
 
 // UserWls retrieves waterlogs for a user from GCP datastore
-func (DatastoreClient) UserWls(userID string) ([]*fountain.WaterLog, error) {
+func (c DatastoreClient) UserWls(userID string) ([]*fountain.WaterLog, error) {
 	var wls []*fountain.WaterLog
 	ctx := context.Background()
 
-	client, err := datastoreClient(ctx)
+	client, err := c.get(ctx)
 	if err != nil {
 		return wls, err
 	}

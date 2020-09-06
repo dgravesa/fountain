@@ -18,18 +18,20 @@ func main() {
 	flag.UintVar(&port, "Port", 8080, "host port number")
 	var userStoreType string
 	flag.StringVar(&userStoreType, "UserStore", "", "user store backend [datastore, redis]")
-	var userStoreAddr string
-	flag.StringVar(&userStoreAddr, "UserStoreAddr", "", "address of user store")
+	var userStoreLoc string
+	flag.StringVar(&userStoreLoc, "UserStoreLoc", "",
+		"location of user store, such as host name or project name")
 	var reservoirType string
 	flag.StringVar(&reservoirType, "Reservoir", "", "reservoir backend [datastore, redis]")
-	var reservoirAddr string
-	flag.StringVar(&reservoirAddr, "ReservoirAddr", "", "address of reservoir")
+	var reservoirLoc string
+	flag.StringVar(&reservoirLoc, "ReservoirLoc", "",
+		"location of reservoir, such as host name or project name")
 	flag.Parse()
 
 	// initialize resources
-	userStore := initializeUserStore(userStoreType, userStoreAddr)
+	userStore := initializeUserStore(userStoreType, userStoreLoc)
 	usersResource := resources.NewUsersResource(userStore)
-	reservoir := initializeReservoir(reservoirType, reservoirAddr)
+	reservoir := initializeReservoir(reservoirType, reservoirLoc)
 	waterlogsResource := resources.NewWaterLogsResource(reservoir)
 
 	// initialize routes
@@ -46,38 +48,46 @@ func main() {
 	}
 }
 
-func initializeUserStore(storeType, addr string) data.UserStore {
-	if storeType == "" {
-		// use default
-		return data.DefaultUserStore()
-	} else if storeType == "datastore" {
-		return gcp.DatastoreClient{}
-	} else if storeType == "redis" {
-		store, err := redis.NewUserStore(addr)
-		if err != nil {
-			log.Fatalln("error on initializing redis client:", err)
-		}
-		return store
+func initializeUserStore(storeType, location string) data.UserStore {
+	var s data.UserStore
+	var err error
+
+	switch storeType {
+	case "":
+		s, err = data.DefaultUserStore()
+	case "datastore":
+		s = gcp.NewDatastoreClient(location)
+	case "redis":
+		s, err = redis.NewUserStore(location)
+	default:
+		err = fmt.Errorf("unknown user store client type: %s", storeType)
 	}
 
-	log.Fatalln("invalid user store type specified:", storeType)
-	return nil
+	if err != nil {
+		log.Fatalln("error on initializing user store client:", err)
+	}
+
+	return s
 }
 
-func initializeReservoir(reservoirType, addr string) data.Reservoir {
-	if reservoirType == "" {
-		// use default
-		return data.DefaultReservoir()
-	} else if reservoirType == "datastore" {
-		return gcp.DatastoreClient{}
-	} else if reservoirType == "redis" {
-		reservoir, err := redis.NewReservoir(addr)
-		if err != nil {
-			log.Fatalln("error on initializing redis client:", err)
-		}
-		return reservoir
+func initializeReservoir(reservoirType, location string) data.Reservoir {
+	var r data.Reservoir
+	var err error
+
+	switch reservoirType {
+	case "":
+		r, err = data.DefaultReservoir()
+	case "datastore":
+		r = gcp.NewDatastoreClient(location)
+	case "redis":
+		r, err = redis.NewReservoir(location)
+	default:
+		err = fmt.Errorf("unknown reservoir client type: %s", reservoirType)
 	}
 
-	log.Fatalln("invalid reservoir type specified:", reservoirType)
-	return nil
+	if err != nil {
+		log.Fatalln("error on initializing reservoir client:", err)
+	}
+
+	return r
 }

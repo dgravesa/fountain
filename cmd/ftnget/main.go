@@ -25,21 +25,23 @@ func main() {
 		log.Fatalln("error occurred")
 	}
 
-	// retrieve user logs
-	reservoir := data.DefaultReservoir()
-	waterlogs, err := reservoir.UserWls(userID)
-
-	if err != nil {
-		log.Fatalln(err)
-	} else {
-		total := 0.0
-
-		// print all user logs
-		for _, wl := range waterlogs {
-			fmt.Println(wl)
-			total += wl.Amount
+	mustNotErr := func(err error) {
+		if err != nil {
+			log.Fatalln(err)
 		}
-
-		fmt.Println("Total amount:", total, "oz")
 	}
+
+	// retrieve user logs
+	reservoir, err := data.DefaultReservoir()
+	mustNotErr(err)
+	waterlogs, err := reservoir.UserWls(userID)
+	mustNotErr(err)
+
+	// print all user logs
+	total := 0.0
+	for _, wl := range waterlogs {
+		fmt.Println(wl)
+		total += wl.Amount
+	}
+	fmt.Println("Total amount:", total, "oz")
 }

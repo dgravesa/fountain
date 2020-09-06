@@ -34,14 +34,16 @@ func main() {
 		log.Fatalln("error occurred")
 	}
 
+	mustNotErr := func(err error) {
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
 	// insert new user log
 	wl := fountain.WlNow(amt)
-	reservoir := data.DefaultReservoir()
-	err := reservoir.WriteWl(userID, &wl)
-
-	if err != nil {
-		log.Fatalln(err)
-	} else {
-		fmt.Println(wl)
-	}
+	reservoir, err := data.DefaultReservoir()
+	mustNotErr(err)
+	mustNotErr(reservoir.WriteWl(userID, &wl))
+	fmt.Println(wl)
 }
