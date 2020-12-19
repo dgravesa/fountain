@@ -48,6 +48,12 @@ github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGX
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/dgravesa/minicli v0.1.0 h1:fH0mU7cOhmhaeM+2OM/9t/gNGHVoGwOHH6KtQApzaZ4=
+github.com/dgravesa/minicli v0.1.0/go.mod h1:lL1dyLa6p+kKzSTQ02S5Xu+FQs8zbn5NtdiIHblURJw=
+github.com/dgravesa/minicli v0.1.1 h1:hOg+UJEgiRlnqAYtixPQ6Gzb/G1INQFgNrR4Q71HYYg=
+github.com/dgravesa/minicli v0.1.1/go.mod h1:lL1dyLa6p+kKzSTQ02S5Xu+FQs8zbn5NtdiIHblURJw=
+github.com/dgravesa/minicli v0.1.2 h1:htrSWk2tjif6GasVFWuccGf/Fw63kAtkCVx4bK7fpNg=
+github.com/dgravesa/minicli v0.1.2/go.mod h1:lL1dyLa6p+kKzSTQ02S5Xu+FQs8zbn5NtdiIHblURJw=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
