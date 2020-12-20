@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	cloud.google.com/go/datastore v1.2.0
-	github.com/dgravesa/minicli v0.1.2
+	github.com/dgravesa/minicli v0.3.2
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
